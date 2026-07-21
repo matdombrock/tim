@@ -1,6 +1,6 @@
 # TIM
 
-A simple CLI tool that:
+A simple (~100 LOC) CLI tool that:
 - Fetches a URL and converts the HTML to Markdown using [turndown](https://github.com/mixmark-io/turndown).
 - Runs web searches against a [searXNG](https://docs.searxng.org/) instance and return the results as markdown.
 
