@@ -78,7 +78,7 @@ async function main(): Promise<void> {
   const query = process.argv.slice(3).join(' ');
 
   if (!cmd || !query) {
-    console.error('Usage: http <cmd> <url|query>');
+    console.error('Usage: tim <cmd> <url|query>');
     process.exit(1);
   }
 
