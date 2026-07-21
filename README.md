@@ -2,8 +2,10 @@
 
 A simple CLI tool that:
 - Fetches a URL and converts the HTML to Markdown using [turndown](https://github.com/mixmark-io/turndown).
-- Runs tim searches against a [searXNG](https://docs.searxng.org/) instance.
+- Runs web searches against a [searXNG](https://docs.searxng.org/) instance and return the results as markdown.
 
+> [!NOTE]  
+> This is not a tool for scripting. It is not a replacement for tools like `curl` in any way shape or form. This is a tool to provide human readable output of web sites and search engines in the terminal.
 ## Requires
 
 - NodeJS 24+ 
@@ -24,9 +26,11 @@ The program takes an optional `SEARCH_URL` env var.
 
 This defaults to `http://localhost:1235/search?q=`.
 
-Note: A `&format=json` is automatically appended after the search query. 
+> [!NOTE]  
+> A `&format=json` is automatically appended after the search query. 
 
-Tip: Look in `./extra` for a script that can help you set up your own searXNG instance. 
+> [!TIP]  
+> Look in `./extra` for a script that can help you set up your own searXNG instance. 
 
 ## Install
 
