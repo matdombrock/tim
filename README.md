@@ -27,7 +27,7 @@ The program takes an optional `SEARCH_URL` env var.
 This defaults to `http://localhost:1235/search?q=`.
 
 > [!NOTE]  
-> A `&format=json` is automatically appended after the search query. 
+> A `&format=json` string is automatically appended after the search query. 
 
 > [!TIP]  
 > Look in `./extra` for a script that can help you set up your own searXNG instance. 
