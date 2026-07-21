@@ -1,0 +1,21 @@
+{
+  "name": "tim",
+  "version": "0.1.0",
+  "description": "Fetch a URL and convert HTML to Markdown using turndown",
+  "type": "commonjs",
+  "bin": {
+    "tim": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "turndown": "^7.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "@types/turndown": "^5.0.6",
+    "typescript": "^5.8.3"
+  }
+}
