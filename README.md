@@ -58,7 +58,7 @@ npm uninstall -g tim
 
 ### Get
 
-```bash
+```text
 λ tim get matdombrock.com
      MatDombrock.com          
 
@@ -99,7 +99,7 @@ If you're interested, you can read more [about me](/about.html).
 
 ### Search
 
-```bash
+```text
 └λ tim search this is a test
 # Armin van Buuren - This Is A Test (Extended Mix) - YouTube
 URL: https://www.youtube.com/watch?v=fIrrHUaXpAE
