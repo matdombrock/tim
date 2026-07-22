@@ -2,7 +2,7 @@ import TurndownService from 'turndown';
 
 const searchURL = process.env.SEARCH_URL || 'http://localhost:1235/search?q='
 
-async function getMarkdown(url: string): Promise<string> {
+export async function getMarkdown(url: string): Promise<string> {
   if (!url.startsWith('http')) {
     // No protocol found, assume http
     url = 'http://' + url;
@@ -34,7 +34,7 @@ async function getMarkdown(url: string): Promise<string> {
   }
 }
 
-async function getSearch(query: string): Promise<string> {
+export async function getSearch(query: string): Promise<string> {
   async function getJSON(url: string): Promise<any> {
     try {
       const response = await fetch(url, { redirect: 'follow' });
@@ -70,5 +70,3 @@ ${item.content}
   }
   return out;
 }
-
-export { getMarkdown, getSearch };
