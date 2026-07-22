@@ -20,6 +20,9 @@ tim search test
 tim search this is my search 
 ```
 
+> [!TIP]  
+> Use a tool like `mdcat` to render markdown in your terminal! 
+
 ## Search URL
 
 The program takes an optional `SEARCH_URL` env var. 
