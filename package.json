@@ -1,6 +1,6 @@
 {
   "name": "tim",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Fetch a URL and convert HTML to Markdown using turndown",
   "type": "commonjs",
   "bin": {

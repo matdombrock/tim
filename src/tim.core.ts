@@ -11,8 +11,9 @@ export async function getMarkdown(url: string): Promise<string> {
     const response = await fetch(url, { redirect: 'follow' });
 
     if (!response.ok) {
-      console.error(`Error: ${response.status} ${response.statusText}`);
-      process.exit(1);
+      const msg = `Error: ${response.status} ${response.statusText}`;
+      console.error(msg);
+      return msg;
     }
 
     const html = await response.text();
@@ -28,9 +29,9 @@ export async function getMarkdown(url: string): Promise<string> {
 
     return markdown;
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error(`Error: ${message}`);
-    process.exit(1);
+    const msg = 'Error: ' + (err instanceof Error ? err.message : String(err));
+    console.error(msg);
+    return msg;
   }
 }
 
@@ -40,16 +41,17 @@ export async function getSearch(query: string): Promise<string> {
       const response = await fetch(url, { redirect: 'follow' });
 
       if (!response.ok) {
-        console.error(`Error: ${response.status} ${response.statusText}`);
-        process.exit(1);
+        const msg = `Error: ${response.status} ${response.statusText}`;
+        console.error(msg);
+        return msg;
       }
 
       const json = await response.json();
       return json;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error(`Error: ${message}`);
-      process.exit(1);
+      const msg = 'Error: ' + (err instanceof Error ? err.message : String(err));
+      console.error(msg);
+      return msg;
     }
   }
   const json = await getJSON(`${searchURL}/${query}&format=json`);
