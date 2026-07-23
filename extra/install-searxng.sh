@@ -28,7 +28,9 @@ cmd_start() {
 
   podman run -d --replace \
     --name "${NAME}" \
-    -p 1235:8080 \
+    --network=host \
+    -e SEARXNG_BIND_ADDRESS="0.0.0.0" \
+    -e SEARXNG_PORT="1235" \
     -v "${CONFIG_DIR}:/etc/searxng/:Z" \
     -v "${DATA_DIR}:/var/cache/searxng/:Z" \
     docker.io/searxng/searxng:latest
