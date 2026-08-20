@@ -17,7 +17,9 @@ async function main(): Promise<void> {
       res = await getMarkdown(query);
       break;
     case 'search':
-      res = await getSearch(query);
+      res = await getSearch({
+        query: query,
+      });
       break;
     default:
       res = 'Error: Unknown command ' + cmd;
