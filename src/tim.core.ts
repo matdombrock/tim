@@ -1,18 +1,24 @@
 // 
-// Tim - v26.8.20
+// Tim - v26.9.03
 //
 
+import { chromium } from 'playwright';
 import TurndownService from 'turndown';
 
 const DEFAULT_SEARXNG_URL = 'http://localhost:1235/search?q=';
 const BRAVE_ENDPOINT = 'https://api.search.brave.com/res/v1/web/search';
 
-export async function getMarkdown(url: string): Promise<string> {
-  if (!url.startsWith('http')) {
-    // No protocol found, assume http
-    url = 'http://' + url;
-  }
-  try {
+async function playwrightHTML(url: string): Promise<string> {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto(url);
+  const content = await page.content();
+  await browser.close();
+  return content;
+}
+
+async function fetchHTML(url: string): Promise<string> {
+  {
     const response = await fetch(url, { redirect: 'follow' });
 
     if (!response.ok) {
@@ -21,7 +27,17 @@ export async function getMarkdown(url: string): Promise<string> {
       return msg;
     }
 
-    const html = await response.text();
+    return await response.text();
+  }
+}
+
+export async function getMarkdown(url: string, playwright = false): Promise<string> {
+  if (!url.startsWith('http')) {
+    // No protocol found, assume http
+    url = 'http://' + url;
+  }
+  try {
+    const html = process.env.TIM_PLAYWRIGHT || playwright ? await playwrightHTML(url) : await fetchHTML(url);
     const turndownService = new TurndownService({
       headingStyle: 'atx',
       codeBlockStyle: 'fenced',
