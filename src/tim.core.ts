@@ -4,19 +4,40 @@
 
 import { chromium } from 'playwright';
 import TurndownService from 'turndown';
+import fs from 'node:fs';
 
 const DEFAULT_SEARXNG_URL = 'http://localhost:1235/search?q=';
 const BRAVE_ENDPOINT = 'https://api.search.brave.com/res/v1/web/search';
 
+//
+// Fetching tools
+//
+// TODO: Could be optimized by reusing page when we have multipl PW reqs
 async function playwrightHTML(url: string): Promise<string> {
   const browser = await chromium.launch();
   const page = await browser.newPage();
   await page.goto(url);
+  await page.waitForLoadState('networkidle');
   const content = await page.content();
   await browser.close();
   return content;
 }
-
+async function playwrightScreenshot(url: string, path: string): Promise<void> {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto(url);
+  await page.waitForLoadState('networkidle');
+  await page.screenshot({ path: path });
+  await browser.close();
+}
+async function playwrightPDF(url: string, path: string) {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto(url);
+  await page.waitForLoadState('networkidle');
+  await page.pdf({ path: path, format: 'A4' });
+  await browser.close();
+}
 async function fetchHTML(url: string): Promise<string> {
   {
     const response = await fetch(url, { redirect: 'follow' });
@@ -31,23 +52,45 @@ async function fetchHTML(url: string): Promise<string> {
   }
 }
 
-export async function getMarkdown(url: string, playwright = false): Promise<string> {
+//
+// Get Page
+//
+export interface PageOpt {
+  url: string,
+  playwright?: boolean,
+  pdfPath?: string,
+  screenshotPath?: string,
+  markdownPath?: string,
+}
+export async function getPage(opt: PageOpt): Promise<string> {
+  let url = opt.url;
   if (!url.startsWith('http')) {
     // No protocol found, assume http
     url = 'http://' + url;
   }
   try {
-    const html = process.env.TIM_PLAYWRIGHT || playwright ? await playwrightHTML(url) : await fetchHTML(url);
+    if (opt.pdfPath) {
+      await playwrightPDF(url, opt.pdfPath);
+      return opt.pdfPath;
+    }
+    if (opt.screenshotPath) {
+      await playwrightScreenshot(url, opt.screenshotPath);
+      return opt.screenshotPath;
+    }
+    const html = process.env.TIM_PLAYWRIGHT || opt.playwright
+      ? await playwrightHTML(url)
+      : await fetchHTML(url);
     const turndownService = new TurndownService({
       headingStyle: 'atx',
       codeBlockStyle: 'fenced',
     });
-
     // Strip non-content elements before conversion
     turndownService.remove(['style', 'script', 'nav', 'footer', 'header', 'aside']);
-
     const markdown = turndownService.turndown(html);
-
+    if (opt.markdownPath) {
+      fs.writeFileSync(opt.markdownPath, markdown);
+      return opt.markdownPath;
+    }
     return markdown;
   } catch (err: unknown) {
     const msg = 'Error: ' + (err instanceof Error ? err.message : String(err));
@@ -56,6 +99,9 @@ export async function getMarkdown(url: string, playwright = false): Promise<stri
   }
 }
 
+//
+// Search Tools
+//
 async function searxngSearch(query: string, searchURL: string): Promise<string> {
   async function getJSON(url: string): Promise<any> {
     try {
@@ -134,6 +180,9 @@ ${item.description}
   }
 }
 
+//
+// Get Search
+//
 export enum Engine {
   Brave = 'brave',
   SearXNG = 'searchxng',
