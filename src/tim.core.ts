@@ -154,7 +154,7 @@ export async function getSearch(opt: SearchOpt): Promise<string> {
 
   if (engine === 'brave') {
     if (!apiKey) {
-      const msg = 'Error: provider is "brave" but no braveApiKey set in search.config.json';
+      const msg = 'Error: provider is "brave" but no Brave API key is set';
       console.error(msg);
       return msg;
     }
