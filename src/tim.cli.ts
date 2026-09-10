@@ -9,24 +9,24 @@ Commands:
   get [opt] <url>          Fetch a URL and convert HTML to Markdown
   search [opt] <query>     Run a web search
 
-Help:
+Options:
   -h, --help               Show this help and exit
 Get:
   --pw                     Render the page with Playwright
   -p, --pdf                Save the page as a PDF
-  --screenshot, --ss       Save a screenshot of the page
-  --markdown, --md         Write markdown to a file
+  -s, --screenshot         Save a screenshot of the page
+  -m, --markdown           Write markdown to a file
   -o, --path <path>        Base path for output files (no extension)
 Search:
   -e, --engine <name>      Search engine: brave | searchxng
 
 These get options can be combined; Playwright renders the page when any
-of --pdf, --screenshot, or --markdown is used (overriding --pw).
+of -p, -s, or -m is used (overriding --pw).
 `;
 
 async function main(): Promise<void> {
   let positionals: string[];
-  let values: { help?: boolean; playwright?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; markdown?: boolean; path?: string };
+  let values: { help?: boolean; playwright?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; path?: string };
 
   try {
     const parsed = parseArgs({
@@ -34,9 +34,11 @@ async function main(): Promise<void> {
       options: {
         help: { type: 'boolean', short: 'h' },
         pdf: { type: 'boolean', short: 'p' },
-        playwright: { type: 'boolean', short: 'w' }, // --pw
+        playwright: { type: 'boolean', short: 'w' },
         screenshot: { type: 'boolean', short: 's' },
+        ss: { type: 'boolean' },
         markdown: { type: 'boolean', short: 'm' },
+        md: { type: 'boolean' },
         engine: { type: 'string', short: 'e' },
         path: { type: 'string', short: 'o' },
       },
@@ -72,8 +74,8 @@ async function main(): Promise<void> {
         po: {
           path: values.path || '',
           pdf: !!values.pdf,
-          ss: !!values.screenshot,
-          md: !!values.markdown,
+          ss: !!values.ss || !!values.screenshot,
+          md: !!values.md || !!values.markdown,
         },
       });
       break;

@@ -27,13 +27,13 @@ Usage: tim get <url> [options]
 
 Options:
   -h, --help               Show help
+  --pw                     Render the page with Playwright
   -p, --pdf                Save the page as a PDF
-      --pw                 Render the page with Playwright
-      --screenshot, --ss   Save a screenshot of the page
-      --markdown, --md     Write markdown to a file
+  -s, --screenshot         Save a screenshot of the page
+  -m, --markdown           Write markdown to a file
   -o, --path <path>        Base path for output files (no extension)
 
-The --pdf, --screenshot, and --markdown options can be combined.
+The -p, -s, and -m options can be combined.
 Playwright renders the page when any of these is used (overriding --pw).
 ```
 
