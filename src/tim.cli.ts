@@ -6,35 +6,39 @@ import { getPage, getSearch, Engine } from "./tim.core";
 const USAGE = `Usage: tim <cmd> [options] <url|query>
 
 Commands:
-  get <url>       Fetch a URL and convert HTML to Markdown
-  search <query>  Run a web search
+  get [opt] <url>          Fetch a URL and convert HTML to Markdown
+  search [opt] <query>     Run a web search
 
-Options:
+Help:
   -h, --help               Show this help and exit
-  -p, --playwright         Render the page with Playwright (get)
-      --pdf <path>         Save the page as a PDF (get)
-      --screenshot <path>  Save a screenshot of the page (get)
-      --markdown <path>    Write markdown to a file instead of stdout (get)
-  -e, --engine <name>      Search engine: brave | searchxng (search)
+Get:
+  --pw                     Render the page with Playwright
+  -p, --pdf                Save the page as a PDF
+  --screenshot, --ss       Save a screenshot of the page
+  --markdown, --md         Write markdown to a file
+  --path <path>            Base path for output files (no extension)
+Search:
+  -e, --engine <name>      Search engine: brave | searchxng
 
-The get output options (--pdf, --screenshot, --markdown) are exclusive:
-only one may be used at a time.
+These get options can be combined; Playwright renders the page when any
+of --pdf, --screenshot, or --markdown is used (overriding --pw).
 `;
 
 async function main(): Promise<void> {
   let positionals: string[];
-  let values: { help?: boolean; playwright?: boolean; engine?: string; pdf?: string; screenshot?: string; markdown?: string };
+  let values: { help?: boolean; playwright?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; markdown?: boolean; path?: string };
 
   try {
     const parsed = parseArgs({
       allowPositionals: true,
       options: {
         help: { type: 'boolean', short: 'h' },
-        playwright: { type: 'boolean', short: 'p' },
+        pdf: { type: 'boolean', short: 'p' },
+        playwright: { type: 'boolean', short: 'w' }, // --pw
+        screenshot: { type: 'boolean', short: 's' },
+        markdown: { type: 'boolean', short: 'm' },
         engine: { type: 'string', short: 'e' },
-        pdf: { type: 'string' },
-        screenshot: { type: 'string' },
-        markdown: { type: 'string' },
+        path: { type: 'string' },
       },
     });
     positionals = parsed.positionals;
@@ -62,17 +66,15 @@ async function main(): Promise<void> {
         console.error('Usage: tim get <url>');
         process.exit(1);
       }
-      const outputs = ['pdf', 'screenshot', 'markdown'].filter((o) => values[o as keyof typeof values]);
-      if (outputs.length > 1) {
-        console.error(`Error: --${outputs[0]} and --${outputs[1]} are exclusive. Use only one of --pdf, --screenshot, --markdown.`);
-        process.exit(1);
-      }
       res = await getPage({
         url: rest[0],
         playwright: values.playwright,
-        pdfPath: values.pdf,
-        screenshotPath: values.screenshot,
-        markdownPath: values.markdown,
+        po: {
+          path: values.path || '',
+          pdf: !!values.pdf,
+          ss: !!values.screenshot,
+          md: !!values.markdown,
+        },
       });
       break;
     }

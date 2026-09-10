@@ -20,6 +20,33 @@ tim search test
 tim search this is my search 
 ```
 
+### Get Options
+
+```
+Usage: tim get <url> [options]
+
+Options:
+  -h, --help               Show help
+  -p, --pdf                Save the page as a PDF
+      --pw                 Render the page with Playwright
+      --screenshot, --ss   Save a screenshot of the page
+      --markdown, --md     Write markdown to a file
+      --path <path>        Base path for output files (no extension)
+
+The --pdf, --screenshot, and --markdown options can be combined.
+Playwright renders the page when any of these is used (overriding --pw).
+```
+
+### Search Options
+
+```
+Usage: tim search <query> [options]
+
+Options:
+  -h, --help               Show help
+  -e, --engine <name>      Search engine: brave | searchxng
+```
+
 > [!TIP]  
 > Use a tool like `mdcat` to render markdown in your terminal! 
 

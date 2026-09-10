@@ -12,32 +12,31 @@ const BRAVE_ENDPOINT = 'https://api.search.brave.com/res/v1/web/search';
 //
 // Fetching tools
 //
-// TODO: Could be optimized by reusing page when we have multipl PW reqs
-async function playwrightHTML(url: string): Promise<string> {
+export interface PlayOpt {
+  path?: string; // File path no ext
+  pdf?: boolean;
+  md?: boolean;
+  ss?: boolean;
+}
+async function playw(url: string, opt: PlayOpt): Promise<string> {
+  if (!opt.path) {
+    let urlSafe = url.replace("http://", "");
+    urlSafe = urlSafe.replace("https://", "");
+    urlSafe = urlSafe.replace(/[^a-zA-Z0-9]/g, '.');
+    opt.path = urlSafe;
+  }
   const browser = await chromium.launch();
   const page = await browser.newPage();
   await page.goto(url);
   await page.waitForLoadState('networkidle');
   const content = await page.content();
+  if (opt.md) fs.writeFileSync(opt.path + '.md', content);
+  if (opt.ss) await page.screenshot({ path: opt.path + '.png' });
+  if (opt.pdf) await page.pdf({ path: opt.path + '.pdf', format: 'A4' });
   await browser.close();
   return content;
 }
-async function playwrightScreenshot(url: string, path: string): Promise<void> {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-  await page.goto(url);
-  await page.waitForLoadState('networkidle');
-  await page.screenshot({ path: path });
-  await browser.close();
-}
-async function playwrightPDF(url: string, path: string) {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-  await page.goto(url);
-  await page.waitForLoadState('networkidle');
-  await page.pdf({ path: path, format: 'A4' });
-  await browser.close();
-}
+
 async function fetchHTML(url: string): Promise<string> {
   {
     const response = await fetch(url, { redirect: 'follow' });
@@ -58,9 +57,7 @@ async function fetchHTML(url: string): Promise<string> {
 export interface PageOpt {
   url: string,
   playwright?: boolean,
-  pdfPath?: string,
-  screenshotPath?: string,
-  markdownPath?: string,
+  po: PlayOpt;
 }
 export async function getPage(opt: PageOpt): Promise<string> {
   let url = opt.url;
@@ -69,17 +66,14 @@ export async function getPage(opt: PageOpt): Promise<string> {
     url = 'http://' + url;
   }
   try {
-    if (opt.pdfPath) {
-      await playwrightPDF(url, opt.pdfPath);
-      return opt.pdfPath;
+    const usePW = opt.playwright || opt.po.pdf || opt.po.ss;
+    let html = '';
+    if (usePW) {
+      html = await playw(url, opt.po);
+    } else {
+      html = await fetchHTML(url);
     }
-    if (opt.screenshotPath) {
-      await playwrightScreenshot(url, opt.screenshotPath);
-      return opt.screenshotPath;
-    }
-    const html = process.env.TIM_PLAYWRIGHT || opt.playwright
-      ? await playwrightHTML(url)
-      : await fetchHTML(url);
+
     const turndownService = new TurndownService({
       headingStyle: 'atx',
       codeBlockStyle: 'fenced',
@@ -87,10 +81,6 @@ export async function getPage(opt: PageOpt): Promise<string> {
     // Strip non-content elements before conversion
     turndownService.remove(['style', 'script', 'nav', 'footer', 'header', 'aside']);
     const markdown = turndownService.turndown(html);
-    if (opt.markdownPath) {
-      fs.writeFileSync(opt.markdownPath, markdown);
-      return opt.markdownPath;
-    }
     return markdown;
   } catch (err: unknown) {
     const msg = 'Error: ' + (err instanceof Error ? err.message : String(err));
