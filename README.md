@@ -31,7 +31,7 @@ Options:
       --pw                 Render the page with Playwright
       --screenshot, --ss   Save a screenshot of the page
       --markdown, --md     Write markdown to a file
-      --path <path>        Base path for output files (no extension)
+  -o, --path <path>        Base path for output files (no extension)
 
 The --pdf, --screenshot, and --markdown options can be combined.
 Playwright renders the page when any of these is used (overriding --pw).

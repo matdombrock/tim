@@ -16,7 +16,7 @@ Get:
   -p, --pdf                Save the page as a PDF
   --screenshot, --ss       Save a screenshot of the page
   --markdown, --md         Write markdown to a file
-  --path <path>            Base path for output files (no extension)
+  -o, --path <path>        Base path for output files (no extension)
 Search:
   -e, --engine <name>      Search engine: brave | searchxng
 
@@ -38,7 +38,7 @@ async function main(): Promise<void> {
         screenshot: { type: 'boolean', short: 's' },
         markdown: { type: 'boolean', short: 'm' },
         engine: { type: 'string', short: 'e' },
-        path: { type: 'string' },
+        path: { type: 'string', short: 'o' },
       },
     });
     positionals = parsed.positionals;
