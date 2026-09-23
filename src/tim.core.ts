@@ -30,6 +30,22 @@ async function playw(url: string, opt: PlayOpt): Promise<string> {
   const page = await browser.newPage();
   await page.goto(url);
   await page.waitForLoadState('networkidle');
+  if (opt.pdf) {
+    // Scroll through the page to trigger lazy loads (images, embeds) before
+    // generating the PDF, then return to the top so the PDF starts at the
+    // top of the page. Bounded so infinite-scroll pages terminate.
+    const MAX_SCROLLS = 100;
+    let lastScrollY = -1;
+    for (let i = 0; i < MAX_SCROLLS; i++) {
+      const scrollY = await page.evaluate(() => window.scrollY);
+      if (scrollY === lastScrollY) break;
+      lastScrollY = scrollY;
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight));
+      await page.waitForTimeout(300);
+    }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForLoadState('networkidle');
+  }
   const content = await page.content();
   if (opt.md) fs.writeFileSync(opt.path + '.md', content);
   if (opt.html) fs.writeFileSync(opt.path + '.html', content);
