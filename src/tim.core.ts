@@ -2,7 +2,7 @@
 // Tim - v26.9.03
 //
 
-import { chromium } from 'playwright';
+import { chromium, Page } from 'playwright';
 import TurndownService from 'turndown';
 import fs from 'node:fs';
 
@@ -18,7 +18,22 @@ export interface PlayOpt {
   md?: boolean;
   ss?: boolean;
   html?: boolean;
+  debug?: boolean;
+  timeout?: number; // ms
 }
+
+// Non-fatal wait for network idle: some sites keep a long-running connection
+// (websockets, streams, polling) open, so 'networkidle' never resolves. On
+// timeout we proceed with whatever has loaded so the rest of the output
+// (pdf/screenshot/markdown/html) still completes.
+async function waitIdle(page: Page, timeout?: number): Promise<void> {
+  try {
+    await page.waitForLoadState('networkidle', { timeout });
+  } catch {
+    // ignore
+  }
+}
+
 async function playw(url: string, opt: PlayOpt): Promise<string> {
   if (!opt.path) {
     let urlSafe = url.replace("http://", "");
@@ -26,33 +41,36 @@ async function playw(url: string, opt: PlayOpt): Promise<string> {
     urlSafe = urlSafe.replace(/[^a-zA-Z0-9]/g, '.');
     opt.path = urlSafe;
   }
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ headless: !opt.debug });
   const page = await browser.newPage();
-  await page.goto(url);
-  await page.waitForLoadState('networkidle');
-  if (opt.pdf) {
-    // Scroll through the page to trigger lazy loads (images, embeds) before
-    // generating the PDF, then return to the top so the PDF starts at the
-    // top of the page. Bounded so infinite-scroll pages terminate.
-    const MAX_SCROLLS = 100;
-    let lastScrollY = -1;
-    for (let i = 0; i < MAX_SCROLLS; i++) {
-      const scrollY = await page.evaluate(() => window.scrollY);
-      if (scrollY === lastScrollY) break;
-      lastScrollY = scrollY;
-      await page.evaluate(() => window.scrollBy(0, window.innerHeight));
-      await page.waitForTimeout(300);
+  try {
+    await page.goto(url, { timeout: opt.timeout });
+    await waitIdle(page, opt.timeout);
+    if (opt.pdf) {
+      // Scroll through the page to trigger lazy loads (images, embeds) before
+      // generating the PDF, then return to the top so the PDF starts at the
+      // top of the page. Bounded so infinite-scroll pages terminate.
+      const MAX_SCROLLS = 100;
+      let lastScrollY = -1;
+      for (let i = 0; i < MAX_SCROLLS; i++) {
+        const scrollY = await page.evaluate(() => window.scrollY);
+        if (scrollY === lastScrollY) break;
+        lastScrollY = scrollY;
+        await page.evaluate(() => window.scrollBy(0, window.innerHeight));
+        await page.waitForTimeout(300);
+      }
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await waitIdle(page, opt.timeout);
     }
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForLoadState('networkidle');
+    const content = await page.content();
+    if (opt.md) fs.writeFileSync(opt.path + '.md', content);
+    if (opt.html) fs.writeFileSync(opt.path + '.html', content);
+    if (opt.ss) await page.screenshot({ path: opt.path + '.png' });
+    if (opt.pdf) await page.pdf({ path: opt.path + '.pdf', format: 'A4' });
+    return content;
+  } finally {
+    await browser.close();
   }
-  const content = await page.content();
-  if (opt.md) fs.writeFileSync(opt.path + '.md', content);
-  if (opt.html) fs.writeFileSync(opt.path + '.html', content);
-  if (opt.ss) await page.screenshot({ path: opt.path + '.png' });
-  if (opt.pdf) await page.pdf({ path: opt.path + '.pdf', format: 'A4' });
-  await browser.close();
-  return content;
 }
 
 async function fetchHTML(url: string): Promise<string> {
@@ -102,7 +120,6 @@ export async function getPage(opt: PageOpt): Promise<string> {
     return markdown;
   } catch (err: unknown) {
     const msg = 'Error: ' + (err instanceof Error ? err.message : String(err));
-    console.error(msg);
     return msg;
   }
 }

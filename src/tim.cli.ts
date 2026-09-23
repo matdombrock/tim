@@ -13,11 +13,13 @@ Options:
   -h, --help               Show this help and exit
 Get:
   --pw                     Render the page with Playwright
+      --debug-pw           Show the Playwright browser window
   -p, --pdf                Save the page as a PDF
   -s, --screenshot         Save a screenshot of the page
   -m, --markdown           Write markdown to a file
       --html               Write the raw HTML to a file
   -o, --path <path>        Base path for output files (no extension)
+      --timeout <ms>       Playwright load timeout in ms (default 6000)
 Search:
   -e, --engine <name>      Search engine: brave | searchxng
 
@@ -25,9 +27,11 @@ These get options can be combined; Playwright renders the page when any
 of -p, -s, -m, or --html is used (overriding --pw).
 `;
 
+const DEFAULT_TIMEOUT = 6000;
+
 async function main(): Promise<void> {
   let positionals: string[];
-  let values: { help?: boolean; playwright?: boolean; pw?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; html?: boolean; path?: string };
+  let values: { help?: boolean; playwright?: boolean; pw?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; html?: boolean; path?: string; 'debug-pw'?: boolean; timeout?: string };
 
   try {
     const parsed = parseArgs({
@@ -37,6 +41,7 @@ async function main(): Promise<void> {
         pdf: { type: 'boolean', short: 'p' },
         playwright: { type: 'boolean', short: 'w' },
         pw: { type: 'boolean' },
+        'debug-pw': { type: 'boolean' },
         screenshot: { type: 'boolean', short: 's' },
         ss: { type: 'boolean' },
         markdown: { type: 'boolean', short: 'm' },
@@ -44,6 +49,7 @@ async function main(): Promise<void> {
         html: { type: 'boolean' },
         engine: { type: 'string', short: 'e' },
         path: { type: 'string', short: 'o' },
+        timeout: { type: 'string' },
       },
     });
     positionals = parsed.positionals;
@@ -73,13 +79,15 @@ async function main(): Promise<void> {
       }
       res = await getPage({
         url: rest[0],
-        playwright: values.playwright || values.pw,
+        playwright: values.playwright || values.pw || values['debug-pw'],
         po: {
           path: values.path || '',
           pdf: !!values.pdf,
           ss: !!values.ss || !!values.screenshot,
           md: !!values.md || !!values.markdown,
           html: !!values.html,
+          debug: !!values['debug-pw'],
+          timeout: values.timeout ? parseInt(values.timeout, 10) : DEFAULT_TIMEOUT,
         },
       });
       break;
