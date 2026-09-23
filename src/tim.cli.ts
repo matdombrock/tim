@@ -16,17 +16,18 @@ Get:
   -p, --pdf                Save the page as a PDF
   -s, --screenshot         Save a screenshot of the page
   -m, --markdown           Write markdown to a file
+      --html               Write the raw HTML to a file
   -o, --path <path>        Base path for output files (no extension)
 Search:
   -e, --engine <name>      Search engine: brave | searchxng
 
 These get options can be combined; Playwright renders the page when any
-of -p, -s, or -m is used (overriding --pw).
+of -p, -s, -m, or --html is used (overriding --pw).
 `;
 
 async function main(): Promise<void> {
   let positionals: string[];
-  let values: { help?: boolean; playwright?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; path?: string };
+  let values: { help?: boolean; playwright?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; html?: boolean; path?: string };
 
   try {
     const parsed = parseArgs({
@@ -39,6 +40,7 @@ async function main(): Promise<void> {
         ss: { type: 'boolean' },
         markdown: { type: 'boolean', short: 'm' },
         md: { type: 'boolean' },
+        html: { type: 'boolean' },
         engine: { type: 'string', short: 'e' },
         path: { type: 'string', short: 'o' },
       },
@@ -76,6 +78,7 @@ async function main(): Promise<void> {
           pdf: !!values.pdf,
           ss: !!values.ss || !!values.screenshot,
           md: !!values.md || !!values.markdown,
+          html: !!values.html,
         },
       });
       break;

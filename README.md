@@ -31,9 +31,10 @@ Options:
   -p, --pdf                Save the page as a PDF
   -s, --screenshot         Save a screenshot of the page
   -m, --markdown           Write markdown to a file
+      --html               Write the raw HTML to a file
   -o, --path <path>        Base path for output files (no extension)
 
-The -p, -s, and -m options can be combined.
+The -p, -s, -m, and --html options can be combined.
 Playwright renders the page when any of these is used (overriding --pw).
 ```
 

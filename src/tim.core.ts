@@ -17,6 +17,7 @@ export interface PlayOpt {
   pdf?: boolean;
   md?: boolean;
   ss?: boolean;
+  html?: boolean;
 }
 async function playw(url: string, opt: PlayOpt): Promise<string> {
   if (!opt.path) {
@@ -31,6 +32,7 @@ async function playw(url: string, opt: PlayOpt): Promise<string> {
   await page.waitForLoadState('networkidle');
   const content = await page.content();
   if (opt.md) fs.writeFileSync(opt.path + '.md', content);
+  if (opt.html) fs.writeFileSync(opt.path + '.html', content);
   if (opt.ss) await page.screenshot({ path: opt.path + '.png' });
   if (opt.pdf) await page.pdf({ path: opt.path + '.pdf', format: 'A4' });
   await browser.close();
@@ -66,7 +68,7 @@ export async function getPage(opt: PageOpt): Promise<string> {
     url = 'http://' + url;
   }
   try {
-    const usePW = opt.playwright || opt.po.pdf || opt.po.ss;
+    const usePW = opt.playwright || opt.po.pdf || opt.po.ss || opt.po.html;
     let html = '';
     if (usePW) {
       html = await playw(url, opt.po);
