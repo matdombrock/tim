@@ -27,7 +27,7 @@ of -p, -s, -m, or --html is used (overriding --pw).
 
 async function main(): Promise<void> {
   let positionals: string[];
-  let values: { help?: boolean; playwright?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; html?: boolean; path?: string };
+  let values: { help?: boolean; playwright?: boolean; pw?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; html?: boolean; path?: string };
 
   try {
     const parsed = parseArgs({
@@ -36,6 +36,7 @@ async function main(): Promise<void> {
         help: { type: 'boolean', short: 'h' },
         pdf: { type: 'boolean', short: 'p' },
         playwright: { type: 'boolean', short: 'w' },
+        pw: { type: 'boolean' },
         screenshot: { type: 'boolean', short: 's' },
         ss: { type: 'boolean' },
         markdown: { type: 'boolean', short: 'm' },
@@ -72,7 +73,7 @@ async function main(): Promise<void> {
       }
       res = await getPage({
         url: rest[0],
-        playwright: values.playwright,
+        playwright: values.playwright || values.pw,
         po: {
           path: values.path || '',
           pdf: !!values.pdf,
