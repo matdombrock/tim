@@ -28,11 +28,14 @@ Usage: tim get <url> [options]
 Options:
   -h, --help               Show help
   --pw                     Render the page with Playwright
+      --debug-pw           Show the Playwright browser window
   -p, --pdf                Save the page as a PDF
   -s, --screenshot         Save a screenshot of the page
   -m, --markdown           Write markdown to a file
       --html               Write the raw HTML to a file
   -o, --path <path>        Base path for output files (no extension)
+      --timeout <ms>       Playwright load timeout in ms (default 6000)
+      --silent             Suppress the normal markdown output
 
 The -p, -s, -m, and --html options can be combined.
 Playwright renders the page when any of these is used (overriding --pw).

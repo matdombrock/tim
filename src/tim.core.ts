@@ -63,7 +63,6 @@ async function playw(url: string, opt: PlayOpt): Promise<string> {
       await waitIdle(page, opt.timeout);
     }
     const content = await page.content();
-    if (opt.md) fs.writeFileSync(opt.path + '.md', content);
     if (opt.html) fs.writeFileSync(opt.path + '.html', content);
     if (opt.ss) await page.screenshot({ path: opt.path + '.png' });
     if (opt.pdf) await page.pdf({ path: opt.path + '.pdf', format: 'A4' });
@@ -117,6 +116,16 @@ export async function getPage(opt: PageOpt): Promise<string> {
     // Strip non-content elements before conversion
     turndownService.remove(['style', 'script', 'nav', 'footer', 'header', 'aside']);
     const markdown = turndownService.turndown(html);
+    if (opt.po.md) {
+      let filePath = opt.po.path;
+      if (!filePath) {
+        let urlSafe = url.replace("http://", "");
+        urlSafe = urlSafe.replace("https://", "");
+        urlSafe = urlSafe.replace(/[^a-zA-Z0-9]/g, '.');
+        filePath = urlSafe;
+      }
+      fs.writeFileSync(filePath + '.md', markdown);
+    }
     return markdown;
   } catch (err: unknown) {
     const msg = 'Error: ' + (err instanceof Error ? err.message : String(err));

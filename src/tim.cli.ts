@@ -20,6 +20,7 @@ Get:
       --html               Write the raw HTML to a file
   -o, --path <path>        Base path for output files (no extension)
       --timeout <ms>       Playwright load timeout in ms (default 6000)
+      --silent             Suppress the normal markdown output
 Search:
   -e, --engine <name>      Search engine: brave | searchxng
 
@@ -31,7 +32,7 @@ const DEFAULT_TIMEOUT = 6000;
 
 async function main(): Promise<void> {
   let positionals: string[];
-  let values: { help?: boolean; playwright?: boolean; pw?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; html?: boolean; path?: string; 'debug-pw'?: boolean; timeout?: string };
+  let values: { help?: boolean; playwright?: boolean; pw?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; html?: boolean; path?: string; 'debug-pw'?: boolean; timeout?: string; silent?: boolean };
 
   try {
     const parsed = parseArgs({
@@ -50,6 +51,7 @@ async function main(): Promise<void> {
         engine: { type: 'string', short: 'e' },
         path: { type: 'string', short: 'o' },
         timeout: { type: 'string' },
+        silent: { type: 'boolean' },
       },
     });
     positionals = parsed.positionals;
@@ -105,7 +107,9 @@ async function main(): Promise<void> {
     default:
       res = `Error: Unknown command ${cmd}.\nTry \`get\` or \`search\``;
   }
-  console.log(res);
+  if (!values.silent) {
+    console.log(res);
+  }
 }
 
 main();
