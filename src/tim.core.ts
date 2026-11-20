@@ -18,7 +18,7 @@ export interface PlayOpt {
   md?: boolean;
   ss?: boolean;
   html?: boolean;
-  debug?: boolean;
+  showpw?: boolean;
   timeout?: number; // ms
 }
 
@@ -41,7 +41,7 @@ async function playw(url: string, opt: PlayOpt): Promise<string> {
     urlSafe = urlSafe.replace(/[^a-zA-Z0-9]/g, '.');
     opt.path = urlSafe;
   }
-  const browser = await chromium.launch({ headless: !opt.debug });
+  const browser = await chromium.launch({ headless: !opt.showpw });
   const page = await browser.newPage();
   try {
     await page.goto(url, { timeout: opt.timeout });

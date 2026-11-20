@@ -13,7 +13,7 @@ Options:
   -h, --help               Show this help and exit
 Get:
   --pw                     Render the page with Playwright
-      --debug-pw           Show the Playwright browser window
+      --showpw            Show the Playwright browser window
   -p, --pdf                Save the page as a PDF
   -s, --screenshot         Save a screenshot of the page
   -m, --markdown           Write markdown to a file
@@ -44,7 +44,7 @@ async function main(): Promise<void> {
     md?: boolean;
     html?: boolean;
     path?: string;
-    'debug-pw'?: boolean;
+    showpw?: boolean;
     timeout?: string;
     silent?: boolean
   };
@@ -57,7 +57,7 @@ async function main(): Promise<void> {
         pdf: { type: 'boolean', short: 'p' },
         playwright: { type: 'boolean', short: 'w' },
         pw: { type: 'boolean' },
-        'debug-pw': { type: 'boolean' },
+        debugpw: { type: 'boolean' },
         screenshot: { type: 'boolean', short: 's' },
         ss: { type: 'boolean' },
         markdown: { type: 'boolean', short: 'm' },
@@ -96,14 +96,14 @@ async function main(): Promise<void> {
       }
       res = await getPage({
         url: rest[0],
-        playwright: values.playwright || values.pw || values['debug-pw'],
+        playwright: values.playwright || values.pw || values.showpw,
         po: {
           path: values.path || '',
           pdf: !!values.pdf,
           ss: !!values.ss || !!values.screenshot,
           md: !!values.md || !!values.markdown,
           html: !!values.html,
-          debug: !!values['debug-pw'],
+          showpw: !!values.showpw,
           timeout: values.timeout ? parseInt(values.timeout, 10) : DEFAULT_TIMEOUT,
         },
       });
