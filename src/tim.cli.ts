@@ -13,7 +13,7 @@ Options:
   -h, --help               Show this help and exit
 Get:
   --pw                     Render the page with Playwright
-      --showpw            Show the Playwright browser window
+      --showpw             Show the Playwright browser window
   -p, --pdf                Save the page as a PDF
   -s, --screenshot         Save a screenshot of the page
   -m, --markdown           Write markdown to a file
@@ -80,6 +80,11 @@ async function main(): Promise<void> {
   if (values.help) {
     console.log(USAGE);
     process.exit(0);
+  }
+
+  // Automatically silcence when the user aks for other output
+  if (values.pdf || values.screenshot || values.ss || values.md) {
+    values.silent = true;
   }
 
   const [cmd, ...rest] = positionals;

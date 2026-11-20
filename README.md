@@ -6,6 +6,7 @@ A simple (~100 LOC) CLI tool that:
 
 > [!NOTE]  
 > This is not a tool for scripting. It is not a replacement for tools like `curl` in any way shape or form. This is a tool to provide human readable output of web sites and search engines in the terminal.
+
 ## Requires
 
 - NodeJS 24+ 
