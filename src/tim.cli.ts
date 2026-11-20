@@ -32,7 +32,22 @@ const DEFAULT_TIMEOUT = 6000;
 
 async function main(): Promise<void> {
   let positionals: string[];
-  let values: { help?: boolean; playwright?: boolean; pw?: boolean; engine?: string; pdf?: boolean; screenshot?: boolean; ss?: boolean; markdown?: boolean; md?: boolean; html?: boolean; path?: string; 'debug-pw'?: boolean; timeout?: string; silent?: boolean };
+  let values: {
+    help?: boolean;
+    playwright?: boolean;
+    pw?: boolean;
+    engine?: string;
+    pdf?: boolean;
+    screenshot?: boolean;
+    ss?: boolean;
+    markdown?: boolean;
+    md?: boolean;
+    html?: boolean;
+    path?: string;
+    'debug-pw'?: boolean;
+    timeout?: string;
+    silent?: boolean
+  };
 
   try {
     const parsed = parseArgs({
